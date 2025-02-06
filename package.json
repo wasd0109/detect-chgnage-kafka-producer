@@ -1,0 +1,20 @@
+{
+  "name": "detect-change-kafka-producer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "dev": "node ./build/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "kafkajs": "^2.2.4",
+    "mariadb": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1"
+  }
+}
