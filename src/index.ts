@@ -21,7 +21,6 @@ const main =async ()=>{
     bokuao:await detectChanges(db,BOKUAO_BLOG_URL)
   }
 
-  console.log(generateMessage(results))
   const result = await produce('blog_changed',generateMessage(results))
     
 

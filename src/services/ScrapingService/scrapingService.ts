@@ -33,7 +33,7 @@ const getSavedHash = async(url:string,db:Client)=>{
 
 
 const detectChanges = async (db:Client,url:string) =>{
-    console.log(`Detecting ${url}`)
+    console.info(`Detecting ${url}`)
     
     const currentHtml = parseHTML(await fetchPage(url));
 
