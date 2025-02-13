@@ -27,16 +27,6 @@ const initKafka = () => {
     return produce(config);
 };
 exports.initKafka = initKafka;
-function readConfig(fileName) {
-    const data = fs.readFileSync(fileName, "utf8").toString().split("\n");
-    return data.reduce((config, line) => {
-        const [key, value] = line.split("=");
-        if (key && value) {
-            config[key] = value;
-        }
-        return config;
-    }, {});
-}
 const produce = (config) => async (topic, messages) => {
     // create a new producer instance
     const producer = new Kafka(config).producer();

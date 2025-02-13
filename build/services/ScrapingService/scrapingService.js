@@ -24,17 +24,8 @@ const getSavedHash = async (url, db) => {
     const row = rows[0];
     return row ? row.hash : "";
 };
-// const compareWithSavedHTML =async (url:string,html:string,conn:Client)=>{
-//     const query = 'SELECT content FROM site_state WHERE `key` = ? LIMIT 1';
-//     const rows = await conn.query(query,[url])
-//     const savedHTML = rows[0]
-//     // TODO fix, side effect
-//     if(!rows.length){
-//         saveHash(url,html,conn)
-//     }
-//     return savedHTML===html;
-// }
 const detectChanges = async (db, url) => {
+    console.log(`Detecting ${url}`);
     const currentHtml = parseHTML(await fetchPage(url));
     const currentHash = (0, hashUtil_1.generateSha1Hash)(currentHtml);
     const savedHash = await getSavedHash(url, db);

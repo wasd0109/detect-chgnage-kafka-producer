@@ -30,19 +30,11 @@ const getSavedHash = async(url:string,db:Client)=>{
     return row?row.hash:"";
 }
 
-// const compareWithSavedHTML =async (url:string,html:string,conn:Client)=>{
-//     const query = 'SELECT content FROM site_state WHERE `key` = ? LIMIT 1';
-//     const rows = await conn.query(query,[url])
-//     const savedHTML = rows[0]
-//     // TODO fix, side effect
-//     if(!rows.length){
-//         saveHash(url,html,conn)
-//     }
 
-//     return savedHTML===html;
-// }
 
 const detectChanges = async (db:Client,url:string) =>{
+    console.log(`Detecting ${url}`)
+    
     const currentHtml = parseHTML(await fetchPage(url));
 
     const currentHash = generateSha1Hash(currentHtml);
