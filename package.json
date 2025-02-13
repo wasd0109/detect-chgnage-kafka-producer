@@ -4,17 +4,24 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "dev": "node ./build/index.js"
+    "dev": "dotenvx run --env-file=.env.dev -- node ./build/index.js",
+    "start": "dotenvx run --env-file=.env.prod -- node ./build/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@confluentinc/kafka-javascript": "^1.2.0",
+    "@dotenvx/dotenvx": "^1.36.0",
     "axios": "^1.7.9",
+    "axios-retry": "^4.5.0",
     "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
     "kafkajs": "^2.2.4",
-    "mariadb": "^3.4.0"
+    "mariadb": "^3.4.0",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1"
+    "@types/node": "^22.13.1",
+    "@types/pg": "^8.11.11"
   }
 }

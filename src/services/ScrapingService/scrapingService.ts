@@ -1,47 +1,66 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { html } from 'cheerio/dist/commonjs/static';
-import { Connection } from 'mariadb';
-import * as  fs from "node:fs"
+import { FETCH_HEADER } from '../../constants/FetchConstant';
+import { generateSha1Hash } from '../../utils/hashUtil';
+import axiosRetry from 'axios-retry';
+import { Client } from 'pg';
+import { getHashByUrl, saveHashByUrl } from '../../repository/DbRepository';
+
+axiosRetry(axios, { retries: 5 });
+
 
 const fetchPage = async (url: string) => {
-    const { data } = await axios.get(url);
-
+    const { data } = await axios.get(url,{headers:FETCH_HEADER});
     return data;
 };
 
 const parseHTML = (html:string)=>{
-
     const $ = cheerio.load(html)
     return $.html()
 }
 
-const saveHTML = async (url:string,html:string,conn:Connection)=>{
-    const query = `  INSERT INTO site_state (\`key\`, content)
-            VALUES (?, ?)
-            ON DUPLICATE KEY UPDATE content = VALUES(content)`;
-    await conn.query(query,[url,html])
+const saveHash = async (url:string,html:string,db:Client)=>{
+    return await saveHashByUrl(url,html,db)
 }
 
-// const check
+const getSavedHash = async(url:string,db:Client)=>{
+    const rows = await (await getHashByUrl(url,db)).rows
+    const row = rows[0]
 
-const compareWithSavedHTML =async (url:string,html:string,conn:Connection)=>{
-    const query = 'SELECT content FROM site_state WHERE `key` = ? LIMIT 1';
-    const rows = await conn.query(query,[url])
-    const savedHTML = rows[0]
-    return savedHTML===html;
+    return row?row.hash:"";
 }
 
-const detectChanges = async (url:string,conn:Connection) =>{
+// const compareWithSavedHTML =async (url:string,html:string,conn:Client)=>{
+//     const query = 'SELECT content FROM site_state WHERE `key` = ? LIMIT 1';
+//     const rows = await conn.query(query,[url])
+//     const savedHTML = rows[0]
+//     // TODO fix, side effect
+//     if(!rows.length){
+//         saveHash(url,html,conn)
+//     }
+
+//     return savedHTML===html;
+// }
+
+const detectChanges = async (db:Client,url:string) =>{
     const currentHtml = parseHTML(await fetchPage(url));
-    const changed = compareWithSavedHTML(url,currentHtml,conn)
-    if(!changed){
-        console.info("Newer version of the site exist");
-        saveHTML(url,currentHtml,conn)
-        console.info("Newer version of site saved")
 
+    const currentHash = generateSha1Hash(currentHtml);
+    const savedHash = await getSavedHash(url,db);
+
+    if(savedHash&&currentHash!==savedHash){
+        console.info("Newer version of the site exist");
+        await saveHash(url,currentHash,db)
+        console.info("Newer version of site saved")
         return true
-    }else{
+    }
+    else if(!savedHash){
+        console.info("New key");
+        await saveHash(url,currentHash,db)
+        console.info(`HTML for key ${url} saved`)
+        return true
+    }
+    else{
         console.info("No change detected")
         return false
     }
