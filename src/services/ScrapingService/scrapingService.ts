@@ -16,7 +16,7 @@ const fetchPage = async (url: string) => {
 
 const parseHTML = (html:string)=>{
     const $ = cheerio.load(html)
-    return $.html()
+    return $('body').text()
 }
 
 const saveHash = async (url:string,html:string,db:Client)=>{

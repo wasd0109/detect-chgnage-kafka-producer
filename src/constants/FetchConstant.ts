@@ -10,8 +10,8 @@ const FETCH_HEADER = {
 };
 
 const NOGIZAKA_BLOG_URL = "https://www.nogizaka46.com/s/n46/diary/MEMBER";
-const SAKURAZAKA_BLOG_URL = "https://sakurazaka46.com/s/s46/diary/blog/list?ima=0000"
+const SAKURAZAKA_BLOG_URL = "https://www.sakurazaka46.com/s/s46/diary/blog/list?ima=0000"
 const HINATAZAKA_BLOG_URL = "https://www.hinatazaka46.com/s/official/diary/member?ima=0000"
-const BOKUAO_BLOG_URL="https://bokuao.com/blog/list/1/0/"
+const BOKUAO_BLOG_URL="https://www.bokuao.com/blog/list/1/0/"
 
 export {FETCH_HEADER,NOGIZAKA_BLOG_URL,SAKURAZAKA_BLOG_URL,HINATAZAKA_BLOG_URL,BOKUAO_BLOG_URL}
