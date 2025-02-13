@@ -11,19 +11,38 @@ import { ChangeFlags, generateMessage } from './utils/messageUtil';
 //   brokers: ['kafka1:9092', 'kafka2:9092'],
 // })
 
+const fetchTarget = {
+  nogizaka:NOGIZAKA_BLOG_URL,
+  sakurazaka:SAKURAZAKA_BLOG_URL,
+  hinatazaka:HINATAZAKA_BLOG_URL,
+  bokuao:BOKUAO_BLOG_URL,
+}
+
 const main =async ()=>{
   const db =await initDb();
   const produce = initKafka();
 
-  const results:ChangeFlags = {nogizaka:await detectChanges(db,NOGIZAKA_BLOG_URL),
-    sakurazaka:await detectChanges(db,SAKURAZAKA_BLOG_URL),
-    hinatazaka:await detectChanges(db,HINATAZAKA_BLOG_URL),
-    bokuao:await detectChanges(db,BOKUAO_BLOG_URL)
+  const results:ChangeFlags={nogizaka:false,sakurazaka:false,hinatazaka:false,bokuao:false};
+
+  for(const target in fetchTarget){
+    try{
+      const hasChanged = await detectChanges(db,fetchTarget[target]);
+      if(hasChanged){
+        results[target]=hasChanged
+      }
+    }catch(err){
+      continue;
+    }
   }
 
-  const result = await produce('blog_changed',generateMessage(results))
-    
+  if( Object.values(results).includes(true)){
+    const kafkaResult = await produce('blog_changed',generateMessage(results))
 
+    console.info("Message sent")
+    console.log(kafkaResult)
+  }
+  
+    
   console.info("Program Exit")
   process.exit()
 }

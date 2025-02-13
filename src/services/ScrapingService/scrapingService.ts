@@ -10,52 +10,59 @@ axiosRetry(axios, { retries: 5 });
 
 
 const fetchPage = async (url: string) => {
-    const { data } = await axios.get(url,{headers:FETCH_HEADER});
-    return data;
+    try {
+        const { data } = await axios.get(url, { headers: FETCH_HEADER });
+        return data;
+    } catch (err) {
+        console.log(`Fetch error: ${err.message}`);
+        throw err;
+    }
 };
 
-const parseHTML = (html:string)=>{
-    const $ = cheerio.load(html)
-    return $('body').text()
-}
+const parseHTML = (html: string) => {
+    const $ = cheerio.load(html);
+    return $('body').text();
+};
 
-const saveHash = async (url:string,html:string,db:Client)=>{
-    return await saveHashByUrl(url,html,db)
-}
+const saveHash = async (url: string, html: string, db: Client) => {
+    return await saveHashByUrl(url, html, db);
+};
 
-const getSavedHash = async(url:string,db:Client)=>{
-    const rows = await (await getHashByUrl(url,db)).rows
-    const row = rows[0]
+const getSavedHash = async (url: string, db: Client) => {
+    const rows = await (await getHashByUrl(url, db)).rows;
+    const row = rows[0];
 
-    return row?row.hash:"";
-}
+    return row ? row.hash : "";
+};
 
 
 
-const detectChanges = async (db:Client,url:string) =>{
-    console.info(`Detecting ${url}`)
-    
+const detectChanges = async (db: Client, url: string) => {
+    console.info(`Detecting ${url}`);
+
+
     const currentHtml = parseHTML(await fetchPage(url));
 
     const currentHash = generateSha1Hash(currentHtml);
-    const savedHash = await getSavedHash(url,db);
+    const savedHash = await getSavedHash(url, db);
 
-    if(savedHash&&currentHash!==savedHash){
+
+    if (savedHash && currentHash !== savedHash) {
         console.info("Newer version of the site exist");
-        await saveHash(url,currentHash,db)
-        console.info("Newer version of site saved")
-        return true
+        await saveHash(url, currentHash, db);
+        console.info("Newer version of site saved");
+        return true;
     }
-    else if(!savedHash){
+    else if (!savedHash) {
         console.info("New key");
-        await saveHash(url,currentHash,db)
-        console.info(`HTML for key ${url} saved`)
-        return true
+        await saveHash(url, currentHash, db);
+        console.info(`HTML for key ${url} saved`);
+        return true;
     }
-    else{
-        console.info("No change detected")
-        return false
+    else {
+        console.info("No change detected");
+        return false;
     }
-}
+};
 
 export { detectChanges };
